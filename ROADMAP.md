@@ -55,14 +55,14 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Target:** v0.0.1
 
-- [ ] Add Apache-2.0 for original Sigillum code.
-- [ ] Preserve MIT attribution for files derived from Signum.
-- [ ] Confirm Pactum licensing or use a clean-room implementation of its ideas.
-- [ ] Add README, CONTRIBUTING, SECURITY, and ADR template.
-- [ ] Select implementation language and package layout.
-- [ ] Define versioned artifact schemas and compatibility policy.
-- [ ] Configure formatting, linting, unit tests, and CI.
-- [ ] Record architecture ownership boundaries as an ADR.
+- [x] Add Apache-2.0 for original Sigillum code.
+- [x] Preserve MIT attribution for files derived from Signum.
+- [x] Confirm Pactum licensing or use a clean-room implementation of its ideas.
+- [x] Add README, CONTRIBUTING, SECURITY, and ADR template.
+- [x] Select implementation language and package layout.
+- [x] Define versioned artifact schemas and compatibility policy.
+- [x] Configure formatting, linting, unit tests, and CI.
+- [x] Record architecture ownership boundaries as an ADR.
 
 **Exit:** licensed skeleton, passing CI, no unlicensed Pactum source.
 
