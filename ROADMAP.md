@@ -51,7 +51,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 9. Accepted memory is reviewed, scoped, and invalidated when its source becomes stale.
 10. Sigillum does not claim to be a security sandbox.
 
-## Milestone 0 вЂ” Foundation
+## Milestone 0 — Foundation
 
 **Target:** v0.0.1
 
@@ -66,7 +66,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** licensed skeleton, passing CI, no unlicensed Pactum source.
 
-## Milestone 1 вЂ” Minimal vertical slice
+## Milestone 1 — Minimal vertical slice
 
 **Target:** v0.1.0
 
@@ -81,7 +81,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** one small task completes end to end and can be audited without console history.
 
-## Milestone 2 вЂ” Codex plugin
+## Milestone 2 — Codex plugin
 
 **Target:** v0.2.0
 
@@ -93,7 +93,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** CLI and Codex have equivalent lifecycle semantics.
 
-## Milestone 3 вЂ” Context broker
+## Milestone 3 — Context broker
 
 **Target:** v0.3.0
 
@@ -107,7 +107,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** the architect creates a defensible contract and plan without crawling the project.
 
-## Milestone 4 вЂ” Multi-model orchestration
+## Milestone 4 — Multi-model orchestration
 
 **Target:** v0.4.0
 
@@ -128,7 +128,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** a heavy architect can direct a cheaper builder using curated context and an approved plan.
 
-## Milestone 5 вЂ” Guardrails and gates
+## Milestone 5 — Guardrails and gates
 
 **Target:** v0.5.0
 
@@ -142,7 +142,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** out-of-scope changes and newly introduced deterministic failures block the run.
 
-## Milestone 6 вЂ” Risk-adaptive audit and repair
+## Milestone 6 — Risk-adaptive audit and repair
 
 **Target:** v0.6.0
 
@@ -157,7 +157,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** audit cost scales with risk and repairs cannot loop indefinitely.
 
-## Milestone 7 вЂ” Decision and proofpack
+## Milestone 7 — Decision and proofpack
 
 **Target:** v0.7.0
 
@@ -170,7 +170,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** a reviewer can independently understand and verify every verdict.
 
-## Milestone 8 вЂ” Recovery, memory, and hardening
+## Milestone 8 — Recovery, memory, and hardening
 
 **Target:** v0.8.0
 
@@ -185,7 +185,7 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 **Exit:** interrupted runs recover without duplicated effects and memory remains traceable.
 
-## Milestone 9 вЂ” Stable release
+## Milestone 9 — Stable release
 
 **Target:** v1.0.0
 
@@ -201,32 +201,32 @@ There will be one contract, one state tree, one finding schema, one fix loop, an
 
 ```text
 sigillum/
-в”њв”Ђв”Ђ cmd/
-в”њв”Ђв”Ђ core/
-в”‚   в”њв”Ђв”Ђ workflow/
-в”‚   в”њв”Ђв”Ђ contract/
-в”‚   в”њв”Ђв”Ђ context/
-в”‚   в”њв”Ђв”Ђ execution/
-в”‚   в”њв”Ђв”Ђ policy/
-в”‚   в”њв”Ђв”Ђ audit/
-в”‚   в”њв”Ђв”Ђ decision/
-в”‚   в”њв”Ђв”Ђ proofpack/
-в”‚   в””в”Ђв”Ђ memory/
-в”њв”Ђв”Ђ adapters/
-в”‚   в”њв”Ђв”Ђ codex/
-в”‚   в”њв”Ђв”Ђ acp/
-в”‚   в””в”Ђв”Ђ providers/
-в”њв”Ђв”Ђ schemas/
-в”њв”Ђв”Ђ tests/
-в”‚   в”њв”Ђв”Ђ unit/
-в”‚   в”њв”Ђв”Ђ integration/
-в”‚   в”њв”Ђв”Ђ fixtures/
-в”‚   в””в”Ђв”Ђ holdouts/
-в”њв”Ђв”Ђ docs/
-в”‚   в”њв”Ђв”Ђ adr/
-в”‚   в”њв”Ђв”Ђ architecture/
-в”‚   в””в”Ђв”Ђ threat-model/
-в””в”Ђв”Ђ .github/workflows/
+├── cmd/
+├── core/
+│   ├── workflow/
+│   ├── contract/
+│   ├── context/
+│   ├── execution/
+│   ├── policy/
+│   ├── audit/
+│   ├── decision/
+│   ├── proofpack/
+│   └── memory/
+├── adapters/
+│   ├── codex/
+│   ├── acp/
+│   └── providers/
+├── schemas/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── fixtures/
+│   └── holdouts/
+├── docs/
+│   ├── adr/
+│   ├── architecture/
+│   └── threat-model/
+└── .github/workflows/
 ```
 
 The language-specific layout may change in Milestone 0; ownership boundaries should not.
