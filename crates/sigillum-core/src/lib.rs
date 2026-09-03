@@ -42,7 +42,8 @@ mod tests {
         let segments = VERSION.split('.').collect::<Vec<_>>();
 
         assert_eq!(segments.len(), 3);
-        assert!(segments.iter().all(|segment| segment.parse::<u64>().is_ok()));
+        assert!(segments
+            .iter()
+            .all(|segment| segment.parse::<u64>().is_ok()));
     }
 }
-
