@@ -1,0 +1,20 @@
+[package]
+name = "sigillum-cli"
+description = "Command-line interface for Sigillum"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "sigillum"
+path = "src/main.rs"
+
+[dependencies]
+sigillum-core = { path = "../sigillum-core" }
+
+[lints]
+workspace = true
+
