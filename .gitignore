@@ -1,0 +1,9 @@
+/target/
+/.sigillum/
+*.profraw
+*.profdata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
