@@ -1,4 +1,4 @@
-//! Canonical contract snapshots built from resolved OpenSpec artifacts.
+//! Canonical contract snapshots built from resolved `OpenSpec` artifacts.
 
 use std::collections::HashSet;
 use std::error::Error;
@@ -9,12 +9,12 @@ use crate::digest::sha256_hex;
 /// Current version of the canonical contract snapshot format.
 pub const CONTRACT_SNAPSHOT_SCHEMA_VERSION: u32 = 1;
 
-/// Borrowed OpenSpec artifact content supplied by a planning adapter.
+/// Borrowed `OpenSpec` artifact content supplied by a planning adapter.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ArtifactInput<'a> {
-    /// Artifact identifier from the active OpenSpec schema.
+    /// Artifact identifier from the active `OpenSpec` schema.
     pub artifact_id: &'a str,
-    /// Slash-separated path relative to the OpenSpec planning root.
+    /// Slash-separated path relative to the `OpenSpec` planning root.
     pub relative_path: &'a str,
     /// Exact artifact bytes read by the planning adapter.
     pub content: &'a [u8],
@@ -29,7 +29,7 @@ pub struct ArtifactReference {
 }
 
 impl ArtifactReference {
-    /// Returns the artifact identifier from the OpenSpec schema.
+    /// Returns the artifact identifier from the `OpenSpec` schema.
     #[must_use]
     pub fn artifact_id(&self) -> &str {
         &self.artifact_id
@@ -48,9 +48,9 @@ impl ArtifactReference {
     }
 }
 
-/// Immutable, canonical view of the OpenSpec artifact closure at approval time.
+/// Immutable, canonical view of the `OpenSpec` artifact closure at approval time.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ContractSnapshot {
+pub struct Snapshot {
     schema_version: u32,
     change_id: String,
     openspec_schema: String,
@@ -58,11 +58,11 @@ pub struct ContractSnapshot {
     fingerprint: String,
 }
 
-impl ContractSnapshot {
+impl Snapshot {
     /// Builds and fingerprints a snapshot from a fully resolved artifact closure.
     ///
     /// The caller is responsible for resolving readiness and dependency edges from
-    /// OpenSpec. Sigillum validates identity, path safety, and uniqueness before
+    /// `OpenSpec`. Sigillum validates identity, path safety, and uniqueness before
     /// sorting the closure into its canonical order.
     ///
     /// # Errors
@@ -131,13 +131,13 @@ impl ContractSnapshot {
         self.schema_version
     }
 
-    /// Returns the OpenSpec change identifier.
+    /// Returns the `OpenSpec` change identifier.
     #[must_use]
     pub fn change_id(&self) -> &str {
         &self.change_id
     }
 
-    /// Returns the OpenSpec workflow schema identifier.
+    /// Returns the `OpenSpec` workflow schema identifier.
     #[must_use]
     pub fn openspec_schema(&self) -> &str {
         &self.openspec_schema
@@ -176,14 +176,14 @@ impl ContractSnapshot {
 
 /// Hash-pinned approval tied to exactly one contract snapshot.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ContractApproval {
+pub struct Approval {
     contract_fingerprint: String,
 }
 
-impl ContractApproval {
+impl Approval {
     /// Creates approval for the exact supplied snapshot.
     #[must_use]
-    pub fn for_snapshot(snapshot: &ContractSnapshot) -> Self {
+    pub fn for_snapshot(snapshot: &Snapshot) -> Self {
         Self {
             contract_fingerprint: snapshot.fingerprint.clone(),
         }
@@ -191,7 +191,7 @@ impl ContractApproval {
 
     /// Returns whether this approval still matches the supplied snapshot.
     #[must_use]
-    pub fn is_valid_for(&self, snapshot: &ContractSnapshot) -> bool {
+    pub fn is_valid_for(&self, snapshot: &Snapshot) -> bool {
         self.contract_fingerprint == snapshot.fingerprint
     }
 
@@ -205,7 +205,7 @@ impl ContractApproval {
 /// Validation error produced while constructing a contract snapshot.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum SnapshotError {
-    /// The resolved OpenSpec closure contained no files.
+    /// The resolved `OpenSpec` closure contained no files.
     EmptyArtifactClosure,
     /// An identifier was empty or used unsupported characters.
     InvalidIdentifier {
@@ -299,8 +299,7 @@ fn append_u64(output: &mut Vec<u8>, value: u64) {
 #[cfg(test)]
 mod tests {
     use super::{
-        ArtifactInput, ContractApproval, ContractSnapshot, SnapshotError,
-        CONTRACT_SNAPSHOT_SCHEMA_VERSION,
+        Approval, ArtifactInput, Snapshot, SnapshotError, CONTRACT_SNAPSHOT_SCHEMA_VERSION,
     };
 
     const PROPOSAL: ArtifactInput<'_> = ArtifactInput {
@@ -316,9 +315,9 @@ mod tests {
 
     #[test]
     fn snapshot_is_independent_of_adapter_order() {
-        let first = ContractSnapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS])
+        let first = Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS])
             .expect("valid snapshot");
-        let second = ContractSnapshot::build("add-auth", "spec-driven", &[TASKS, PROPOSAL])
+        let second = Snapshot::build("add-auth", "spec-driven", &[TASKS, PROPOSAL])
             .expect("valid snapshot");
 
         assert_eq!(first, second);
@@ -329,15 +328,15 @@ mod tests {
 
     #[test]
     fn artifact_edit_invalidates_approval() {
-        let original = ContractSnapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS])
+        let original = Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS])
             .expect("valid snapshot");
-        let approval = ContractApproval::for_snapshot(&original);
+        let approval = Approval::for_snapshot(&original);
         let changed_tasks = ArtifactInput {
             content: b"- [ ] Implement stronger auth\n",
             ..TASKS
         };
         let changed =
-            ContractSnapshot::build("add-auth", "spec-driven", &[PROPOSAL, changed_tasks])
+            Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, changed_tasks])
                 .expect("valid changed snapshot");
 
         assert!(approval.is_valid_for(&original));
@@ -360,7 +359,7 @@ mod tests {
                 ..PROPOSAL
             };
             assert!(matches!(
-                ContractSnapshot::build("add-auth", "spec-driven", &[invalid]),
+                Snapshot::build("add-auth", "spec-driven", &[invalid]),
                 Err(SnapshotError::InvalidRelativePath(rejected)) if rejected == path
             ));
         }
@@ -374,7 +373,7 @@ mod tests {
         };
 
         assert_eq!(
-            ContractSnapshot::build("add-auth", "spec-driven", &[PROPOSAL, duplicate]),
+            Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, duplicate]),
             Err(SnapshotError::DuplicatePath(
                 "changes/add-auth/proposal.md".to_owned()
             ))
@@ -383,7 +382,7 @@ mod tests {
 
     #[test]
     fn records_known_content_digest() {
-        let snapshot = ContractSnapshot::build(
+        let snapshot = Snapshot::build(
             "digest-check",
             "spec-driven",
             &[ArtifactInput {
