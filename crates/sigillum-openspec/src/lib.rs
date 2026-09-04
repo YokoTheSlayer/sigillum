@@ -208,7 +208,11 @@ impl fmt::Display for AdapterError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Spawn { executable, source } => {
-                write!(formatter, "failed to start {}: {source}", executable.display())
+                write!(
+                    formatter,
+                    "failed to start {}: {source}",
+                    executable.display()
+                )
             }
             Self::CommandFailed {
                 command,
@@ -219,12 +223,21 @@ impl fmt::Display for AdapterError {
                 "openspec {command} failed with exit code {exit_code:?}: {detail}"
             ),
             Self::InvalidJson(message) => write!(formatter, "invalid OpenSpec JSON: {message}"),
-            Self::Protocol(message) => write!(formatter, "incompatible OpenSpec payload: {message}"),
+            Self::Protocol(message) => {
+                write!(formatter, "incompatible OpenSpec payload: {message}")
+            }
             Self::PlanningIncomplete(change) => {
-                write!(formatter, "OpenSpec change {change:?} is not planning-complete")
+                write!(
+                    formatter,
+                    "OpenSpec change {change:?} is not planning-complete"
+                )
             }
             Self::UnsafeArtifactPath(path) => {
-                write!(formatter, "artifact path is outside the approved change: {}", path.display())
+                write!(
+                    formatter,
+                    "artifact path is outside the approved change: {}",
+                    path.display()
+                )
             }
             Self::ArtifactIo { path, source } => {
                 write!(formatter, "cannot read {}: {source}", path.display())
@@ -297,10 +310,7 @@ fn parse_status(input: &[u8]) -> Result<StatusPayload, AdapterError> {
 fn parse_apply(input: &[u8]) -> Result<ApplyPayload, AdapterError> {
     let value = json::parse(input).map_err(|error| AdapterError::InvalidJson(error.to_string()))?;
     let object = required_object(&value, "apply response")?;
-    let context_object = required_object(
-        required_field(object, "contextFiles")?,
-        "contextFiles",
-    )?;
+    let context_object = required_object(required_field(object, "contextFiles")?, "contextFiles")?;
     if context_object.len() > MAX_ARTIFACT_COUNT {
         return Err(AdapterError::ArtifactLimit(format!(
             "OpenSpec returned more than {MAX_ARTIFACT_COUNT} artifact groups"
@@ -373,7 +383,9 @@ fn reconcile(
         ));
     }
     if apply.state == "blocked" {
-        return Err(AdapterError::PlanningIncomplete(requested_change.to_owned()));
+        return Err(AdapterError::PlanningIncomplete(
+            requested_change.to_owned(),
+        ));
     }
     if !matches!(apply.state.as_str(), "ready" | "all_done") {
         return Err(AdapterError::Protocol(format!(
@@ -414,10 +426,11 @@ fn load_snapshot(protocol: ProtocolClosure) -> Result<Snapshot, AdapterError> {
             if !canonical_path.starts_with(&change_dir) {
                 return Err(AdapterError::UnsafeArtifactPath(path));
             }
-            let metadata = fs::metadata(&canonical_path).map_err(|source| AdapterError::ArtifactIo {
-                path: canonical_path.clone(),
-                source,
-            })?;
+            let metadata =
+                fs::metadata(&canonical_path).map_err(|source| AdapterError::ArtifactIo {
+                    path: canonical_path.clone(),
+                    source,
+                })?;
             if !metadata.is_file() {
                 return Err(AdapterError::UnsafeArtifactPath(canonical_path));
             }
@@ -432,8 +445,9 @@ fn load_snapshot(protocol: ProtocolClosure) -> Result<Snapshot, AdapterError> {
                 path: canonical_path.clone(),
                 source,
             })?;
-            let content_len = u64::try_from(content.len())
-                .map_err(|_| AdapterError::ArtifactLimit("artifact length exceeds u64".to_owned()))?;
+            let content_len = u64::try_from(content.len()).map_err(|_| {
+                AdapterError::ArtifactLimit("artifact length exceeds u64".to_owned())
+            })?;
             if content_len > MAX_ARTIFACT_BYTES {
                 return Err(AdapterError::ArtifactLimit(format!(
                     "artifact {} changed beyond the {} byte limit while reading",
@@ -549,9 +563,9 @@ mod tests {
     use std::path::{Path, PathBuf};
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    use super::{load_snapshot, parse_apply, parse_status, reconcile, AdapterError};
     #[cfg(unix)]
     use super::Client;
+    use super::{load_snapshot, parse_apply, parse_status, reconcile, AdapterError};
 
     #[test]
     fn parses_and_reconciles_official_payload_shapes() {
@@ -563,16 +577,14 @@ mod tests {
         fs::write(&proposal, "# Proposal\n").expect("write proposal");
         fs::write(&tasks, "- [ ] Implement\n").expect("write tasks");
 
-        let status = parse_status(
-            status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
-        let apply = parse_apply(
-            apply_json(&root, &change, &proposal, &tasks, "ready").as_bytes(),
-        )
-        .expect("valid apply");
-        let snapshot = load_snapshot(reconcile(status, apply, "add-auth").expect("matching payloads"))
-            .expect("valid snapshot");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
+        let apply = parse_apply(apply_json(&root, &change, &proposal, &tasks, "ready").as_bytes())
+            .expect("valid apply");
+        let snapshot =
+            load_snapshot(reconcile(status, apply, "add-auth").expect("matching payloads"))
+                .expect("valid snapshot");
 
         assert_eq!(snapshot.change_id(), "add-auth");
         assert_eq!(snapshot.openspec_schema(), "spec-driven");
@@ -584,16 +596,14 @@ mod tests {
     fn rejects_incomplete_or_mismatched_protocol_state() {
         let root = temporary_root("blocked");
         let change = root.join("openspec/changes/add-auth");
-        let status = parse_status(
-            status_json(&root, &change, false, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
+        let status =
+            parse_status(status_json(&root, &change, false, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
         assert!(!status.planning_complete);
 
-        let status = parse_status(
-            status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
         let apply = parse_apply(
             apply_json(
                 &root,
@@ -610,10 +620,9 @@ mod tests {
             Err(AdapterError::PlanningIncomplete(change)) if change == "add-auth"
         ));
 
-        let status = parse_status(
-            status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
         let apply = parse_apply(
             apply_json(
                 &root,
@@ -638,10 +647,9 @@ mod tests {
         fs::create_dir_all(&change).expect("create fixture change");
         let outside = root.join("secret.md");
         fs::write(&outside, "secret").expect("write outside file");
-        let status = parse_status(
-            status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
         let apply = parse_apply(
             apply_json(&root, &change, &outside, &change.join("tasks.md"), "ready").as_bytes(),
         )
@@ -732,7 +740,10 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("system clock after epoch")
             .as_nanos();
-        std::env::temp_dir().join(format!("sigillum-openspec-{label}-{}-{nonce}", std::process::id()))
+        std::env::temp_dir().join(format!(
+            "sigillum-openspec-{label}-{}-{nonce}",
+            std::process::id()
+        ))
     }
 
     fn cleanup(path: &Path) {
@@ -741,4 +752,3 @@ mod tests {
         }
     }
 }
-
