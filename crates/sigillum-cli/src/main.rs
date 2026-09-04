@@ -75,6 +75,14 @@ fn run_contract(options: &ContractOptions) -> ExitCode {
             println!("schema: {}", snapshot.openspec_schema());
             println!("contract: {}", snapshot.fingerprint());
             println!("artifacts: {}", snapshot.artifacts().len());
+            for artifact in snapshot.artifacts() {
+                println!(
+                    "  {} {} {}",
+                    artifact.artifact_id(),
+                    artifact.relative_path(),
+                    artifact.content_sha256()
+                );
+            }
             ExitCode::SUCCESS
         }
         Err(error) => {
