@@ -63,4 +63,3 @@ The initial machine-readable boundary and its fail-closed path checks are descri
 ## Interface rule
 
 The CLI and Codex plugin translate user interactions to core commands and render core events. They must not own contracts, policy decisions, repair loops, or verdicts.
-
