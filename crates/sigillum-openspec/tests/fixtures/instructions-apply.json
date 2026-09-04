@@ -1,0 +1,22 @@
+{
+  "changeName": "add-auth",
+  "changeDir": "__CHANGE_ROOT__",
+  "schemaName": "spec-driven",
+  "contextFiles": {
+    "proposal": ["__PROPOSAL__"],
+    "tasks": ["__TASKS__"]
+  },
+  "progress": {
+    "total": 1,
+    "complete": 0,
+    "remaining": 1
+  },
+  "tasks": [],
+  "state": "__STATE__",
+  "instruction": "Implement the change and keep tasks in sync.",
+  "root": {
+    "path": "__ROOT__",
+    "source": "nearest"
+  }
+}
+
