@@ -18,4 +18,3 @@ sigillum-openspec = { path = "../sigillum-openspec" }
 
 [lints]
 workspace = true
-
