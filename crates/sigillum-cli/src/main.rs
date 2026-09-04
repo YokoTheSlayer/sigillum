@@ -42,7 +42,10 @@ fn main() -> ExitCode {
             println!("{} {}", product.name, product.version);
             ExitCode::SUCCESS
         }
-        Some("contract") => contract(args.collect()),
+        Some("contract") => {
+            let arguments = args.collect::<Vec<_>>();
+            contract(&arguments)
+        }
         Some(command) => {
             eprintln!("unknown command: {command}");
             eprintln!("run `sigillum help` for usage");
@@ -51,8 +54,8 @@ fn main() -> ExitCode {
     }
 }
 
-fn contract(arguments: Vec<OsString>) -> ExitCode {
-    match parse_contract_arguments(&arguments) {
+fn contract(arguments: &[OsString]) -> ExitCode {
+    match parse_contract_arguments(arguments) {
         Ok(options) => run_contract(&options),
         Err(message) => {
             eprintln!("{message}");
