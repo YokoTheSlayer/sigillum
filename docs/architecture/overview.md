@@ -58,6 +58,9 @@ A deterministic index and inexpensive scout prepare bounded context packs. Heavy
 
 OpenSpec `proposal`, `specs`, `design`, and `tasks` files are the editable planning source of truth. Sigillum records a canonical, hash-pinned snapshot of their required closure at approval time rather than maintaining duplicate planning documents. Changes to covered artifacts invalidate approval. OpenSpec guidance remains advisory; only the Sigillum core may enforce capabilities, state transitions, gates, and verdicts.
 
+The initial machine-readable boundary and its fail-closed path checks are described in [OpenSpec adapter](openspec-adapter.md).
+
 ## Interface rule
 
 The CLI and Codex plugin translate user interactions to core commands and render core events. They must not own contracts, policy decisions, repair loops, or verdicts.
+
