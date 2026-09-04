@@ -48,4 +48,3 @@ Sigillum is an orchestration and evidence system, not a security sandbox. See [S
 ## License
 
 Original Sigillum code is licensed under Apache-2.0. Third-party and derived work is documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
