@@ -7,8 +7,17 @@ name = "sigillum-cli"
 version = "0.0.1"
 dependencies = [
  "sigillum-core",
+ "sigillum-openspec",
 ]
 
 [[package]]
 name = "sigillum-core"
 version = "0.0.1"
+
+[[package]]
+name = "sigillum-openspec"
+version = "0.0.1"
+dependencies = [
+ "sigillum-core",
+]
+
