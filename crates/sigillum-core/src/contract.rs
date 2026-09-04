@@ -315,10 +315,10 @@ mod tests {
 
     #[test]
     fn snapshot_is_independent_of_adapter_order() {
-        let first = Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS])
-            .expect("valid snapshot");
-        let second = Snapshot::build("add-auth", "spec-driven", &[TASKS, PROPOSAL])
-            .expect("valid snapshot");
+        let first =
+            Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS]).expect("valid snapshot");
+        let second =
+            Snapshot::build("add-auth", "spec-driven", &[TASKS, PROPOSAL]).expect("valid snapshot");
 
         assert_eq!(first, second);
         assert_eq!(first.schema_version(), CONTRACT_SNAPSHOT_SCHEMA_VERSION);
@@ -328,16 +328,15 @@ mod tests {
 
     #[test]
     fn artifact_edit_invalidates_approval() {
-        let original = Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS])
-            .expect("valid snapshot");
+        let original =
+            Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, TASKS]).expect("valid snapshot");
         let approval = Approval::for_snapshot(&original);
         let changed_tasks = ArtifactInput {
             content: b"- [ ] Implement stronger auth\n",
             ..TASKS
         };
-        let changed =
-            Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, changed_tasks])
-                .expect("valid changed snapshot");
+        let changed = Snapshot::build("add-auth", "spec-driven", &[PROPOSAL, changed_tasks])
+            .expect("valid changed snapshot");
 
         assert!(approval.is_valid_for(&original));
         assert!(!approval.is_valid_for(&changed));
