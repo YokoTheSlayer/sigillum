@@ -2,6 +2,10 @@
 
 #![forbid(unsafe_code)]
 
+pub mod contract;
+
+mod digest;
+
 /// The workspace package version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
