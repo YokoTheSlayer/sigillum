@@ -157,4 +157,3 @@ mod tests {
         assert!(parse_contract_arguments(&arguments).is_err());
     }
 }
-
