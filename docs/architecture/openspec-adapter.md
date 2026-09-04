@@ -16,6 +16,8 @@ The adapter requires matching change, schema, project-root, and change-directory
 
 OpenSpec's `contextFiles` map defines the required artifact closure. Sigillum does not copy or update those files. It reads their exact bytes and passes artifact identifiers, root-relative paths, and content to the core snapshot builder.
 
+The command prints the canonical contract fingerprint followed by every artifact identifier, canonical path, and content digest. It never prints artifact bodies.
+
 ## Safety and resource bounds
 
 - Every context file must be an absolute path whose canonical target is inside the canonical OpenSpec change directory.
@@ -31,4 +33,3 @@ These checks protect the contract boundary but do not make Sigillum a security s
 This initial adapter records the OpenSpec version string but does not yet declare a supported version range. Compatibility is checked structurally against the documented fields used by the adapter. Missing fields, changed types, malformed JSON, and unknown state values produce an error instead of silently degrading the contract.
 
 OpenSpec validation output will be added before Milestone 1 is complete. Until then, `status` planning completeness and `instructions apply` readiness are necessary inputs, not a replacement for validation.
-
