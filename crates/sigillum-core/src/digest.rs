@@ -102,6 +102,7 @@ pub(crate) fn sha256_hex(input: &[u8]) -> String {
     output
 }
 
+#[allow(clippy::many_single_char_names)]
 fn compress(state: &mut [u32; 8], chunk: &[u8]) {
     let mut schedule = [0_u32; 64];
     for (index, word) in chunk.chunks_exact(4).enumerate() {
