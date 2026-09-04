@@ -254,9 +254,7 @@ impl Error for SnapshotError {}
 fn validate_identifier(field: &'static str, value: &str) -> Result<(), SnapshotError> {
     let valid = !value.is_empty()
         && value.bytes().all(|byte| {
-            byte.is_ascii_lowercase()
-                || byte.is_ascii_digit()
-                || matches!(byte, b'-' | b'_' | b'.')
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || matches!(byte, b'-' | b'_' | b'.')
         });
     if valid {
         Ok(())
