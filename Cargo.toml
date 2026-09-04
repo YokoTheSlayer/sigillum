@@ -1,5 +1,9 @@
 [workspace]
-members = ["crates/sigillum-cli", "crates/sigillum-core"]
+members = [
+    "crates/sigillum-cli",
+    "crates/sigillum-core",
+    "crates/sigillum-openspec",
+]
 resolver = "2"
 
 [workspace.package]
