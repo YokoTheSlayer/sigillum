@@ -14,6 +14,7 @@ path = "src/main.rs"
 
 [dependencies]
 sigillum-core = { path = "../sigillum-core" }
+sigillum-openspec = { path = "../sigillum-openspec" }
 
 [lints]
 workspace = true
