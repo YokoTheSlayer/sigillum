@@ -342,7 +342,7 @@ mod tests {
     #[test]
     fn rejects_duplicate_keys_and_trailing_data() {
         assert!(parse(br#"{"a":1,"a":2}"#).is_err());
-        assert!(parse(br#"{} true"#).is_err());
+        assert!(parse(br"{} true").is_err());
     }
 
     #[test]
