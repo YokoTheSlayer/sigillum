@@ -351,4 +351,3 @@ mod tests {
         assert!(parse(br#""\udc00""#).is_err());
     }
 }
-
