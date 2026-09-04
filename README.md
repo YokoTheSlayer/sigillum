@@ -20,10 +20,10 @@ OpenSpec owns the editable `proposal`, `specs`, `design`, and `tasks` artifacts.
 
 ## Current capabilities
 
-Milestone 0 establishes:
+The foundation and first contract slice establish:
 
-- a Rust workspace split into core and CLI crates;
-- a minimal `sigillum help` and `sigillum version` executable;
+- a Rust workspace split into core, OpenSpec adapter, and CLI crates;
+- `sigillum contract <change>` for a fail-closed, canonical snapshot of an OpenSpec artifact closure;
 - explicit architecture and artifact compatibility decisions;
 - formatting, linting, tests, and CI;
 - legal boundaries for OpenSpec integration, Signum-derived work, and clean-room implementation of selected Pactum concepts.
@@ -38,6 +38,7 @@ Install Rust 1.81 or later, then run:
 cargo build --workspace
 cargo test --workspace
 cargo run --bin sigillum -- --version
+cargo run --bin sigillum -- contract <change> --project <path>
 ```
 
 ## Security

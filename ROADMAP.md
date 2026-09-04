@@ -94,13 +94,13 @@ There will be one approved contract snapshot, one state tree, one finding schema
 
 - [ ] Detect a local OpenSpec project and compatible CLI version.
 - [ ] Read `status`, `instructions`, and validation results through the OpenSpec JSON interface.
-- [ ] Resolve the required `proposal`, `specs`, `design`, and `tasks` artifact closure without duplicating editable content.
+- [x] Resolve the required `proposal`, `specs`, `design`, and `tasks` artifact closure without duplicating editable content.
 - [ ] Define versioned schemas for OpenSpec references, contract snapshots, approvals, and invalidation reasons.
-- [ ] Canonicalize artifact content, paths, schema identity, and hashes.
+- [x] Canonicalize artifact content, paths, schema identity, and hashes.
 - [ ] Require explicit hash-pinned approval.
 - [ ] Invalidate approval when any covered artifact or schema input changes.
 - [ ] Add compatibility fixtures for valid, incomplete, changed, and unsupported OpenSpec projects.
-- [ ] Document the boundary between advisory OpenSpec guidance and enforceable Sigillum policy.
+- [x] Document the boundary between advisory OpenSpec guidance and enforceable Sigillum policy.
 
 **Exit:** `sigillum contract <change>` produces one auditable snapshot and detects every covered post-approval change.
 

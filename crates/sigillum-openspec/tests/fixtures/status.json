@@ -1,0 +1,17 @@
+{
+  "changeName": "__CHANGE_NAME__",
+  "schemaName": "__SCHEMA_NAME__",
+  "planningHome": "__CHANGE_ROOT__",
+  "changeRoot": "__CHANGE_ROOT__",
+  "artifactPaths": {},
+  "nextSteps": [],
+  "actionContext": null,
+  "isPlanningComplete": "__PLANNING_COMPLETE__",
+  "isComplete": false,
+  "applyRequires": [],
+  "artifacts": [],
+  "root": {
+    "path": "__ROOT__",
+    "source": "nearest"
+  }
+}

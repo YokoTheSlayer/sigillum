@@ -1,5 +1,9 @@
 [workspace]
-members = ["crates/sigillum-cli", "crates/sigillum-core"]
+members = [
+    "crates/sigillum-cli",
+    "crates/sigillum-core",
+    "crates/sigillum-openspec",
+]
 resolver = "2"
 
 [workspace.package]
@@ -22,4 +26,3 @@ pedantic = "warn"
 codegen-units = 1
 lto = true
 strip = true
-
