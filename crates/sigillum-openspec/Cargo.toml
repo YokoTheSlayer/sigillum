@@ -13,4 +13,3 @@ sigillum-core = { path = "../sigillum-core" }
 
 [lints]
 workspace = true
-
