@@ -237,4 +237,3 @@ Every milestone adds schema compatibility, deterministic state-transition, appro
 ## Immediate next step
 
 Build Milestone 1 as a narrow OpenSpec compatibility and contract-snapshot slice. Do not begin model routing or autonomous implementation until artifact resolution, approval hashing, and invalidation are deterministic and covered by fixtures.
-
