@@ -27,6 +27,7 @@ const SUPPORTED_OPENSPEC_VERSIONS: &str = ">=1.12.0,<2.0.0";
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct LoadedContract {
     openspec_version: String,
+    planning_root: PathBuf,
     validation_issue_count: usize,
     snapshot: Snapshot,
 }
@@ -36,6 +37,12 @@ impl LoadedContract {
     #[must_use]
     pub fn openspec_version(&self) -> &str {
         &self.openspec_version
+    }
+
+    /// Returns the canonical OpenSpec root that owns the loaded change.
+    #[must_use]
+    pub fn planning_root(&self) -> &Path {
+        &self.planning_root
     }
 
     /// Returns the number of non-blocking issues in the strict validation report.
@@ -117,10 +124,11 @@ impl Client {
         )?;
         let apply = parse_apply(&apply_output)?;
         let protocol = reconcile(status, apply, change_id)?;
-        let snapshot = load_snapshot(protocol)?;
+        let (snapshot, planning_root) = load_snapshot(protocol)?;
 
         Ok(LoadedContract {
             openspec_version,
+            planning_root,
             validation_issue_count: validation.issues.len(),
             snapshot,
         })
@@ -604,7 +612,7 @@ fn reconcile(
     })
 }
 
-fn load_snapshot(protocol: ProtocolClosure) -> Result<Snapshot, AdapterError> {
+fn load_snapshot(protocol: ProtocolClosure) -> Result<(Snapshot, PathBuf), AdapterError> {
     let root = canonicalize(&protocol.root)?;
     let change_dir = canonicalize(&protocol.change_dir)?;
     if !change_dir.starts_with(&root) {
@@ -677,7 +685,8 @@ fn load_snapshot(protocol: ProtocolClosure) -> Result<Snapshot, AdapterError> {
             content: &artifact.content,
         })
         .collect::<Vec<_>>();
-    Snapshot::build(&protocol.change_name, &protocol.schema_name, &inputs).map_err(Into::into)
+    let snapshot = Snapshot::build(&protocol.change_name, &protocol.schema_name, &inputs)?;
+    Ok((snapshot, root))
 }
 
 fn canonicalize(path: &Path) -> Result<PathBuf, AdapterError> {
@@ -784,7 +793,7 @@ mod tests {
         verify_validation(&status, &validation, "add-auth").expect("matching validation");
         let apply = parse_apply(apply_json(&root, &change, &proposal, &tasks, "ready").as_bytes())
             .expect("valid apply");
-        let snapshot =
+        let (snapshot, _) =
             load_snapshot(reconcile(status, apply, "add-auth").expect("matching payloads"))
                 .expect("valid snapshot");
 
