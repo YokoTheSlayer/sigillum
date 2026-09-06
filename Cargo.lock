@@ -4,19 +4,27 @@ version = 3
 
 [[package]]
 name = "sigillum-cli"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "sigillum-core",
  "sigillum-openspec",
+ "sigillum-store",
 ]
 
 [[package]]
 name = "sigillum-core"
-version = "0.0.1"
+version = "0.1.0"
 
 [[package]]
 name = "sigillum-openspec"
-version = "0.0.1"
+version = "0.1.0"
+dependencies = [
+ "sigillum-core",
+]
+
+[[package]]
+name = "sigillum-store"
+version = "0.1.0"
 dependencies = [
  "sigillum-core",
 ]
