@@ -92,8 +92,8 @@ There will be one approved contract snapshot, one state tree, one finding schema
 
 **Target:** v0.1.0
 
-- [ ] Detect a local OpenSpec project and compatible CLI version.
-- [ ] Read `status`, `instructions`, and validation results through the OpenSpec JSON interface.
+- [x] Detect a local OpenSpec project and compatible CLI version.
+- [x] Read `status`, `instructions`, and validation results through the OpenSpec JSON interface.
 - [x] Resolve the required `proposal`, `specs`, `design`, and `tasks` artifact closure without duplicating editable content.
 - [ ] Define versioned schemas for OpenSpec references, contract snapshots, approvals, and invalidation reasons.
 - [x] Canonicalize artifact content, paths, schema identity, and hashes.

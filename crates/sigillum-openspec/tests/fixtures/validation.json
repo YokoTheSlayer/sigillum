@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "add-auth",
+      "type": "change",
+      "valid": "__VALID__",
+      "issues": "__ISSUES__",
+      "durationMs": 1
+    }
+  ],
+  "summary": {
+    "totals": {
+      "items": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "byType": {
+      "change": {
+        "items": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    }
+  },
+  "version": "__VERSION__",
+  "root": {
+    "path": "__ROOT__",
+    "source": "nearest"
+  }
+}

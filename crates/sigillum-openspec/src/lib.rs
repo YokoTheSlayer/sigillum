@@ -18,11 +18,16 @@ use sigillum_core::contract::{ArtifactInput, Snapshot, SnapshotError};
 const MAX_ARTIFACT_COUNT: usize = 1_024;
 const MAX_ARTIFACT_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_CLOSURE_BYTES: u64 = 32 * 1024 * 1024;
+const MAX_VALIDATION_ISSUES: usize = 1_024;
+const MINIMUM_OPENSPEC_MINOR: u64 = 12;
+const VALIDATION_PROTOCOL_VERSION: &str = "1.0";
+const SUPPORTED_OPENSPEC_VERSIONS: &str = ">=1.12.0,<2.0.0";
 
 /// Successful result of resolving an `OpenSpec` change into a Sigillum contract.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct LoadedContract {
     openspec_version: String,
+    validation_issue_count: usize,
     snapshot: Snapshot,
 }
 
@@ -31,6 +36,12 @@ impl LoadedContract {
     #[must_use]
     pub fn openspec_version(&self) -> &str {
         &self.openspec_version
+    }
+
+    /// Returns the number of non-blocking issues in the strict validation report.
+    #[must_use]
+    pub const fn validation_issue_count(&self) -> usize {
+        self.validation_issue_count
     }
 
     /// Returns the canonical Sigillum contract snapshot.
@@ -95,6 +106,10 @@ impl Client {
             return Err(AdapterError::PlanningIncomplete(change_id.to_owned()));
         }
 
+        let validation_output = self.run_validation_json(project_root, change_id)?;
+        let validation = parse_validation(&validation_output)?;
+        verify_validation(&status, &validation, change_id)?;
+
         let apply_output = self.run_json(
             project_root,
             "instructions apply",
@@ -106,6 +121,7 @@ impl Client {
 
         Ok(LoadedContract {
             openspec_version,
+            validation_issue_count: validation.issues.len(),
             snapshot,
         })
     }
@@ -130,11 +146,7 @@ impl Client {
         let version = String::from_utf8(output.stdout)
             .map_err(|_| AdapterError::Protocol("version output is not UTF-8".to_owned()))?;
         let version = version.trim();
-        if version.is_empty() || !version.bytes().any(|byte| byte.is_ascii_digit()) {
-            return Err(AdapterError::Protocol(
-                "version output does not contain a version number".to_owned(),
-            ));
-        }
+        ensure_supported_version(version)?;
         Ok(version.to_owned())
     }
 
@@ -157,6 +169,38 @@ impl Client {
         } else {
             Err(AdapterError::CommandFailed {
                 command: command_name,
+                exit_code: output.status.code(),
+                detail: output_detail(&output.stdout, &output.stderr),
+            })
+        }
+    }
+
+    fn run_validation_json(
+        &self,
+        project_root: &Path,
+        change_id: &str,
+    ) -> Result<Vec<u8>, AdapterError> {
+        let output = Command::new(&self.executable)
+            .args([
+                "validate",
+                change_id,
+                "--type",
+                "change",
+                "--strict",
+                "--json",
+                "--no-interactive",
+            ])
+            .current_dir(project_root)
+            .output()
+            .map_err(|source| AdapterError::Spawn {
+                executable: self.executable.clone(),
+                source,
+            })?;
+        if matches!(output.status.code(), Some(0 | 1)) && !output.stdout.is_empty() {
+            Ok(output.stdout)
+        } else {
+            Err(AdapterError::CommandFailed {
+                command: "validate",
                 exit_code: output.status.code(),
                 detail: output_detail(&output.stdout, &output.stderr),
             })
@@ -189,6 +233,20 @@ pub enum AdapterError {
     Protocol(String),
     /// Planning artifacts are not ready for execution.
     PlanningIncomplete(String),
+    /// The installed CLI is outside the tested compatibility range.
+    UnsupportedVersion {
+        /// Exact version output returned by the configured executable.
+        detected: String,
+        /// Human-readable supported version range.
+        supported: &'static str,
+    },
+    /// Strict `OpenSpec` validation rejected the selected change.
+    ValidationFailed {
+        /// Rejected change identifier.
+        change: String,
+        /// Bounded issue summaries returned by `OpenSpec`.
+        issues: Vec<String>,
+    },
     /// An artifact path escaped the selected planning root or change directory.
     UnsafeArtifactPath(PathBuf),
     /// Reading or canonicalizing a planning artifact failed.
@@ -232,6 +290,18 @@ impl fmt::Display for AdapterError {
                     "OpenSpec change {change:?} is not planning-complete"
                 )
             }
+            Self::UnsupportedVersion {
+                detected,
+                supported,
+            } => write!(
+                formatter,
+                "unsupported OpenSpec version {detected:?}; expected {supported}"
+            ),
+            Self::ValidationFailed { change, issues } => write!(
+                formatter,
+                "OpenSpec change {change:?} failed strict validation: {}",
+                issues.join("; ")
+            ),
             Self::UnsafeArtifactPath(path) => {
                 write!(
                     formatter,
@@ -281,6 +351,14 @@ struct ApplyPayload {
     context_files: BTreeMap<String, Vec<PathBuf>>,
 }
 
+struct ValidationPayload {
+    root: PathBuf,
+    protocol_version: String,
+    change_name: String,
+    valid: bool,
+    issues: Vec<String>,
+}
+
 struct ProtocolClosure {
     change_name: String,
     schema_name: String,
@@ -293,6 +371,124 @@ struct OwnedArtifact {
     artifact_id: String,
     relative_path: String,
     content: Vec<u8>,
+}
+
+fn ensure_supported_version(output: &str) -> Result<(), AdapterError> {
+    let version = output
+        .split_whitespace()
+        .map(|word| word.trim_matches(|character: char| matches!(character, '(' | ')' | ',')))
+        .map(|word| word.strip_prefix('v').unwrap_or(word))
+        .find(|word| word.starts_with(|character: char| character.is_ascii_digit()))
+        .ok_or_else(|| {
+            AdapterError::Protocol("version output does not contain a semantic version".to_owned())
+        })?;
+    if version.contains('-') || version.contains('+') {
+        return Err(AdapterError::UnsupportedVersion {
+            detected: output.to_owned(),
+            supported: SUPPORTED_OPENSPEC_VERSIONS,
+        });
+    }
+
+    let components = version
+        .split('.')
+        .map(str::parse::<u64>)
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| {
+            AdapterError::Protocol("version output contains invalid semantic version".to_owned())
+        })?;
+    if components.len() != 3 {
+        return Err(AdapterError::Protocol(
+            "version output must contain a major.minor.patch version".to_owned(),
+        ));
+    }
+    if components[0] != 1 || components[1] < MINIMUM_OPENSPEC_MINOR {
+        return Err(AdapterError::UnsupportedVersion {
+            detected: output.to_owned(),
+            supported: SUPPORTED_OPENSPEC_VERSIONS,
+        });
+    }
+    Ok(())
+}
+
+fn parse_validation(input: &[u8]) -> Result<ValidationPayload, AdapterError> {
+    let value = json::parse(input).map_err(|error| AdapterError::InvalidJson(error.to_string()))?;
+    let object = required_object(&value, "validation response")?;
+    let items = required_field(object, "items")?
+        .as_array()
+        .ok_or_else(|| AdapterError::Protocol("field \"items\" must be an array".to_owned()))?;
+    if items.len() != 1 {
+        return Err(AdapterError::Protocol(
+            "change validation must return exactly one item".to_owned(),
+        ));
+    }
+    let item = required_object(&items[0], "validation item")?;
+    if required_string(item, "type")? != "change" {
+        return Err(AdapterError::Protocol(
+            "validation item type must be \"change\"".to_owned(),
+        ));
+    }
+    let issue_values = required_field(item, "issues")?
+        .as_array()
+        .ok_or_else(|| AdapterError::Protocol("field \"issues\" must be an array".to_owned()))?;
+    if issue_values.len() > MAX_VALIDATION_ISSUES {
+        return Err(AdapterError::ArtifactLimit(format!(
+            "OpenSpec returned more than {MAX_VALIDATION_ISSUES} validation issues"
+        )));
+    }
+
+    let issues = issue_values
+        .iter()
+        .map(|issue| {
+            let issue = required_object(issue, "validation issue")?;
+            let level = required_string(issue, "level")?;
+            let path = required_string(issue, "path")?;
+            let message = required_string(issue, "message")?;
+            Ok(format!("{level} {path}: {message}"))
+        })
+        .collect::<Result<Vec<_>, AdapterError>>()?;
+
+    Ok(ValidationPayload {
+        root: parse_root(object)?,
+        protocol_version: required_string(object, "version")?.to_owned(),
+        change_name: required_string(item, "id")?.to_owned(),
+        valid: required_bool(item, "valid")?,
+        issues,
+    })
+}
+
+fn verify_validation(
+    status: &StatusPayload,
+    validation: &ValidationPayload,
+    requested_change: &str,
+) -> Result<(), AdapterError> {
+    if validation.protocol_version != VALIDATION_PROTOCOL_VERSION {
+        return Err(AdapterError::Protocol(format!(
+            "unsupported validation protocol version {:?}",
+            validation.protocol_version
+        )));
+    }
+    if validation.change_name != requested_change {
+        return Err(AdapterError::Protocol(
+            "validation item id does not match the requested change".to_owned(),
+        ));
+    }
+    if validation.root != status.root {
+        return Err(AdapterError::Protocol(
+            "status and validation root paths differ".to_owned(),
+        ));
+    }
+    if !validation.valid {
+        let issues = if validation.issues.is_empty() {
+            vec!["OpenSpec returned no issue details".to_owned()]
+        } else {
+            validation.issues.clone()
+        };
+        return Err(AdapterError::ValidationFailed {
+            change: requested_change.to_owned(),
+            issues,
+        });
+    }
+    Ok(())
 }
 
 fn parse_status(input: &[u8]) -> Result<StatusPayload, AdapterError> {
@@ -565,7 +761,10 @@ mod tests {
 
     #[cfg(unix)]
     use super::Client;
-    use super::{load_snapshot, parse_apply, parse_status, reconcile, AdapterError};
+    use super::{
+        ensure_supported_version, load_snapshot, parse_apply, parse_status, parse_validation,
+        reconcile, verify_validation, AdapterError,
+    };
 
     #[test]
     fn parses_and_reconciles_official_payload_shapes() {
@@ -580,6 +779,9 @@ mod tests {
         let status =
             parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
                 .expect("valid status");
+        let validation =
+            parse_validation(validation_json(&root, true, "1.0").as_bytes()).expect("valid report");
+        verify_validation(&status, &validation, "add-auth").expect("matching validation");
         let apply = parse_apply(apply_json(&root, &change, &proposal, &tasks, "ready").as_bytes())
             .expect("valid apply");
         let snapshot =
@@ -590,6 +792,50 @@ mod tests {
         assert_eq!(snapshot.openspec_schema(), "spec-driven");
         assert_eq!(snapshot.artifacts().len(), 2);
         cleanup(&root);
+    }
+
+    #[test]
+    fn rejects_unsupported_cli_and_validation_versions() {
+        ensure_supported_version("OpenSpec 1.12.0").expect("minimum supported version");
+        ensure_supported_version("1.99.4").expect("later compatible version");
+        assert!(matches!(
+            ensure_supported_version("OpenSpec 1.11.9"),
+            Err(AdapterError::UnsupportedVersion { .. })
+        ));
+        assert!(matches!(
+            ensure_supported_version("2.0.0"),
+            Err(AdapterError::UnsupportedVersion { .. })
+        ));
+
+        let root = temporary_root("validation-version");
+        let change = root.join("openspec/changes/add-auth");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
+        let validation = parse_validation(validation_json(&root, true, "2.0").as_bytes())
+            .expect("well-formed report");
+        assert!(matches!(
+            verify_validation(&status, &validation, "add-auth"),
+            Err(AdapterError::Protocol(message))
+                if message.contains("validation protocol version")
+        ));
+    }
+
+    #[test]
+    fn returns_strict_validation_issues() {
+        let root = temporary_root("invalid");
+        let change = root.join("openspec/changes/add-auth");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
+        let validation = parse_validation(validation_json(&root, false, "1.0").as_bytes())
+            .expect("valid rejection report");
+
+        assert!(matches!(
+            verify_validation(&status, &validation, "add-auth"),
+            Err(AdapterError::ValidationFailed { change, issues })
+                if change == "add-auth" && issues[0].contains("missing scenario")
+        ));
     }
 
     #[test]
@@ -679,8 +925,9 @@ mod tests {
         let executable = root.join("fake-openspec");
         let status = status_json(&root, &change, true, "add-auth", "spec-driven");
         let apply = apply_json(&root, &change, &proposal, &tasks, "ready");
+        let validation = validation_json(&root, true, "1.0");
         let script = format!(
-            "#!/bin/sh\ncase \"$1\" in\n  --version) printf '%s\\n' 'OpenSpec 1.2.3' ;;\n  status) printf '%s\\n' '{status}' ;;\n  instructions) printf '%s\\n' '{apply}' ;;\n  *) exit 64 ;;\nesac\n"
+            "#!/bin/sh\ncase \"$1\" in\n  --version) printf '%s\\n' 'OpenSpec 1.12.0' ;;\n  status) printf '%s\\n' '{status}' ;;\n  validate) printf '%s\\n' '{validation}' ;;\n  instructions) printf '%s\\n' '{apply}' ;;\n  *) exit 64 ;;\nesac\n"
         );
         fs::write(&executable, script).expect("write fake executable");
         let mut permissions = fs::metadata(&executable)
@@ -693,7 +940,8 @@ mod tests {
             .load_contract(&root, "add-auth")
             .expect("load through fake CLI");
 
-        assert_eq!(loaded.openspec_version(), "OpenSpec 1.2.3");
+        assert_eq!(loaded.openspec_version(), "OpenSpec 1.12.0");
+        assert_eq!(loaded.validation_issue_count(), 0);
         assert_eq!(loaded.snapshot().artifacts().len(), 2);
         cleanup(&root);
     }
@@ -728,6 +976,19 @@ mod tests {
             .replace("__PROPOSAL__", &json_path(proposal))
             .replace("__TASKS__", &json_path(tasks))
             .replace("__STATE__", state)
+            .replace("__ROOT__", &json_path(root))
+    }
+
+    fn validation_json(root: &Path, valid: bool, version: &str) -> String {
+        let issues = if valid {
+            "[]"
+        } else {
+            r#"[{"level":"ERROR","path":"specs/auth/spec.md","message":"missing scenario"}]"#
+        };
+        include_str!("../tests/fixtures/validation.json")
+            .replace("\"__VALID__\"", if valid { "true" } else { "false" })
+            .replace("\"__ISSUES__\"", issues)
+            .replace("__VERSION__", version)
             .replace("__ROOT__", &json_path(root))
     }
 
