@@ -809,10 +809,9 @@ mod tests {
 
         let root = temporary_root("validation-version");
         let change = root.join("openspec/changes/add-auth");
-        let status = parse_status(
-            status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
         let validation = parse_validation(validation_json(&root, true, "2.0").as_bytes())
             .expect("well-formed report");
         assert!(matches!(
@@ -826,10 +825,9 @@ mod tests {
     fn returns_strict_validation_issues() {
         let root = temporary_root("invalid");
         let change = root.join("openspec/changes/add-auth");
-        let status = parse_status(
-            status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes(),
-        )
-        .expect("valid status");
+        let status =
+            parse_status(status_json(&root, &change, true, "add-auth", "spec-driven").as_bytes())
+                .expect("valid status");
         let validation = parse_validation(validation_json(&root, false, "1.0").as_bytes())
             .expect("valid rejection report");
 
