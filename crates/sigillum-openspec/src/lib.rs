@@ -39,7 +39,7 @@ impl LoadedContract {
         &self.openspec_version
     }
 
-    /// Returns the canonical OpenSpec root that owns the loaded change.
+    /// Returns the canonical `OpenSpec` root that owns the loaded change.
     #[must_use]
     pub fn planning_root(&self) -> &Path {
         &self.planning_root
