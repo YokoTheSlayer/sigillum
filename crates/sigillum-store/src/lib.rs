@@ -261,11 +261,7 @@ fn contains_approval_records(directory: &Path) -> Result<bool, StoreError> {
             path: directory.to_owned(),
             source,
         })?;
-        if entry
-            .file_name()
-            .to_str()
-            .is_some_and(is_approval_filename)
-        {
+        if entry.file_name().to_str().is_some_and(is_approval_filename) {
             return Ok(true);
         }
     }
