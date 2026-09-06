@@ -8,7 +8,7 @@ fn version_reports_workspace_version() {
         .expect("sigillum should start");
 
     assert!(output.status.success());
-    assert_eq!(String::from_utf8_lossy(&output.stdout), "Sigillum 0.0.1\n");
+    assert_eq!(String::from_utf8_lossy(&output.stdout), "Sigillum 0.1.0\n");
 }
 #[test]
 fn unknown_command_uses_usage_error_exit_code() {
