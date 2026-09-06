@@ -225,9 +225,7 @@ mod tests {
     fn non_implementers_cannot_write_task_paths_or_run_task_commands() {
         for role in [Role::Scout, Role::Architect, Role::Verifier, Role::Judge] {
             assert!(!role.contract().allows(Capability::WriteTaskPaths));
-            assert!(!role
-                .contract()
-                .allows(Capability::RunApprovedCommands));
+            assert!(!role.contract().allows(Capability::RunApprovedCommands));
         }
         assert!(Role::Implementer
             .contract()
@@ -251,8 +249,6 @@ mod tests {
     fn verifier_and_judge_require_independent_sessions() {
         assert!(Role::Verifier.contract().requires_independent_session());
         assert!(Role::Judge.contract().requires_independent_session());
-        assert!(!Role::Implementer
-            .contract()
-            .requires_independent_session());
+        assert!(!Role::Implementer.contract().requires_independent_session());
     }
 }
