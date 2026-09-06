@@ -240,11 +240,11 @@ pub enum AdapterError {
         /// Human-readable supported version range.
         supported: &'static str,
     },
-    /// Strict OpenSpec validation rejected the selected change.
+    /// Strict `OpenSpec` validation rejected the selected change.
     ValidationFailed {
         /// Rejected change identifier.
         change: String,
-        /// Bounded issue summaries returned by OpenSpec.
+        /// Bounded issue summaries returned by `OpenSpec`.
         issues: Vec<String>,
     },
     /// An artifact path escaped the selected planning root or change directory.
