@@ -74,6 +74,10 @@ fn run_contract(options: &ContractOptions) -> ExitCode {
         Ok(loaded) => {
             let snapshot = loaded.snapshot();
             println!("OpenSpec {}", loaded.openspec_version());
+            println!(
+                "validation: valid ({} non-blocking issues)",
+                loaded.validation_issue_count()
+            );
             println!("change: {}", snapshot.change_id());
             println!("schema: {}", snapshot.openspec_schema());
             println!("contract: {}", snapshot.fingerprint());
