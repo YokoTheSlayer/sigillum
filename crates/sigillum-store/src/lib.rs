@@ -213,7 +213,11 @@ impl fmt::Display for StoreError {
                 write!(formatter, "approval record is corrupt: {}", path.display())
             }
             Self::Io { path, source } => {
-                write!(formatter, "Sigillum state I/O failed at {}: {source}", path.display())
+                write!(
+                    formatter,
+                    "Sigillum state I/O failed at {}: {source}",
+                    path.display()
+                )
             }
             Self::StateLimit(message) => formatter.write_str(message),
         }
@@ -285,10 +289,8 @@ fn ensure_contract_directory(root: &Path, change_id: &str) -> Result<PathBuf, St
             }
             Err(source) => return Err(StoreError::Io { path: next, source }),
         }
-        current = fs::canonicalize(&next).map_err(|source| StoreError::Io {
-            path: next,
-            source,
-        })?;
+        current =
+            fs::canonicalize(&next).map_err(|source| StoreError::Io { path: next, source })?;
         if !current.starts_with(root) {
             return Err(StoreError::UnsafeStatePath(current));
         }
@@ -332,7 +334,10 @@ mod tests {
         let store = ApprovalStore::open(&root).expect("open store");
         let original = snapshot(b"original");
 
-        assert_eq!(store.status(&original).expect("missing status"), ApprovalStatus::Missing);
+        assert_eq!(
+            store.status(&original).expect("missing status"),
+            ApprovalStatus::Missing
+        );
         assert!(matches!(
             store.approve(&original, "wrong"),
             Err(StoreError::FingerprintMismatch { .. })
@@ -345,7 +350,10 @@ mod tests {
             .expect("repeat approval");
 
         assert_eq!(first, second);
-        assert_eq!(store.status(&original).expect("valid status"), ApprovalStatus::Valid);
+        assert_eq!(
+            store.status(&original).expect("valid status"),
+            ApprovalStatus::Valid
+        );
 
         let changed = snapshot(b"changed");
         assert_eq!(
