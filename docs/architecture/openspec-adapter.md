@@ -9,10 +9,11 @@ For `sigillum contract <change>`, the adapter runs these commands in the selecte
 ```text
 openspec --version
 openspec status --change <change> --json
+openspec validate <change> --type change --strict --json --no-interactive
 openspec instructions apply --change <change> --json
 ```
 
-The adapter requires matching change, schema, project-root, and change-directory identities across the two JSON responses. Planning must be complete and the apply state must be `ready` or `all_done`. Unknown states fail closed.
+The adapter requires matching change, schema, project-root, and change-directory identities across the JSON responses. Planning must be complete, strict validation protocol `1.0` must report the selected change as valid, and the apply state must be `ready` or `all_done`. Unknown states and protocol versions fail closed. OpenSpec validation exit code 1 is parsed as a report because that is the documented result for invalid items; other non-zero exits remain command failures.
 
 OpenSpec's `contextFiles` map defines the required artifact closure. Sigillum does not copy or update those files. It reads their exact bytes and passes artifact identifiers, root-relative paths, and content to the core snapshot builder.
 
@@ -30,6 +31,4 @@ These checks protect the contract boundary but do not make Sigillum a security s
 
 ## Compatibility policy
 
-This initial adapter records the OpenSpec version string but does not yet declare a supported version range. Compatibility is checked structurally against the documented fields used by the adapter. Missing fields, changed types, malformed JSON, and unknown state values produce an error instead of silently degrading the contract.
-
-OpenSpec validation output will be added before Milestone 1 is complete. Until then, `status` planning completeness and `instructions apply` readiness are necessary inputs, not a replacement for validation.
+The adapter supports OpenSpec CLI versions `>=1.12.0,<2.0.0`, the range covered by the agent contract used during implementation. Prerelease and build-qualified versions are rejected until explicitly tested. Missing fields, changed types, malformed JSON, unknown validation protocols, and unknown state values produce an error instead of silently degrading the contract.
