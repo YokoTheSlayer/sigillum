@@ -23,7 +23,7 @@ OpenSpec owns the editable `proposal`, `specs`, `design`, and `tasks` artifacts.
 The foundation and first contract slice establish:
 
 - a Rust workspace split into core, OpenSpec adapter, and CLI crates;
-- `sigillum contract <change>` for a fail-closed, canonical snapshot of an OpenSpec artifact closure;
+- `sigillum contract <change>` for strict OpenSpec validation and a fail-closed, canonical snapshot of its artifact closure;
 - explicit architecture and artifact compatibility decisions;
 - formatting, linting, tests, and CI;
 - legal boundaries for OpenSpec integration, Signum-derived work, and clean-room implementation of selected Pactum concepts.
