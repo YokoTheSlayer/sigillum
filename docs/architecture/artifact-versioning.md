@@ -30,3 +30,9 @@ Schemas will live in `schemas/` beginning with Milestone 1. Golden fixtures and 
 The canonical representation starts with `sigillum-contract-snapshot\0`, followed by the big-endian schema version, length-prefixed change and OpenSpec schema identifiers, artifact count, and length-prefixed identity, path, and content digest fields for each sorted artifact. The snapshot fingerprint does not depend on adapter discovery order. File content, identity, path, OpenSpec schema, or change identity modifications produce a different fingerprint and invalidate approval.
 
 OpenSpec readiness and dependency resolution remain planning-adapter responsibilities. A core snapshot proves exactly what was approved; it does not claim that an incomplete OpenSpec change is ready.
+
+## Approval record v1
+
+`schemas/approval-record-v1.schema.json` defines the canonical append-only approval record. It contains only schema version 1, the validated change identifier, and the exact contract fingerprint. The canonical writer uses two-space-indented JSON, field order matching the schema, UTF-8, and one trailing newline. A record with different bytes at the filename for its fingerprint is corrupt and cannot authorize execution.
+
+`schemas/invalidation-reason-v1.schema.json` defines the stable reasons emitted while comparing approval history with a fresh snapshot. `contract_changed` covers every input already committed into the canonical fingerprint, including artifact bytes, identities, paths, change identity, OpenSpec schema identity, and snapshot schema version. `approval_record_corrupt` reports an exact-fingerprint record whose type, path, or bytes are not canonical.
