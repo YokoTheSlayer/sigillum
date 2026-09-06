@@ -45,7 +45,7 @@ impl fmt::Display for InvalidationReason {
     }
 }
 
-/// Filesystem-backed, append-only approval store rooted in an OpenSpec project.
+/// Filesystem-backed, append-only approval store rooted in an `OpenSpec` project.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ApprovalStore {
     root: PathBuf,
@@ -183,7 +183,7 @@ pub enum StoreError {
     FingerprintMismatch {
         /// Fingerprint supplied by the user.
         expected: String,
-        /// Fingerprint calculated from current OpenSpec artifacts.
+        /// Fingerprint calculated from current `OpenSpec` artifacts.
         actual: String,
     },
     /// An immutable approval record already exists with unexpected content.
@@ -264,12 +264,23 @@ fn contains_approval_records(directory: &Path) -> Result<bool, StoreError> {
         if entry
             .file_name()
             .to_str()
-            .is_some_and(|name| name.starts_with("approval-") && name.ends_with(".json"))
+            .is_some_and(is_approval_filename)
         {
             return Ok(true);
         }
     }
     Ok(false)
+}
+
+fn is_approval_filename(name: &str) -> bool {
+    name.strip_prefix("approval-")
+        .and_then(|name| name.strip_suffix(".json"))
+        .is_some_and(|fingerprint| {
+            fingerprint.len() == 64
+                && fingerprint
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        })
 }
 
 fn ensure_contract_directory(root: &Path, change_id: &str) -> Result<PathBuf, StoreError> {
