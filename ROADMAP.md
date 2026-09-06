@@ -116,7 +116,7 @@ There will be one approved contract snapshot, one state tree, one finding schema
 - [ ] Run a deterministic verifier after implementation.
 - [ ] Produce minimal Markdown and JSON proofpacks.
 - [ ] Return stable exit codes for success, failure, and human review.
-- [ ] Test that planner and reviewer roles cannot obtain implementer capabilities.
+- [x] Test that planner and reviewer roles cannot obtain implementer capabilities.
 
 **Exit:** one small OpenSpec change completes end to end through explicit role boundaries and can be audited without console history.
 
