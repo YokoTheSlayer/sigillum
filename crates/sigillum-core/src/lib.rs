@@ -3,6 +3,7 @@
 #![forbid(unsafe_code)]
 
 pub mod contract;
+pub mod role;
 
 mod digest;
 

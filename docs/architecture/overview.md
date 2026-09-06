@@ -40,6 +40,8 @@ Only the core runtime advances the lifecycle. Modules propose data or findings; 
 
 Roles are stable policy contracts rather than fixed model names. Provider adapters select an eligible model without changing capabilities, budgets, required context, or independence.
 
+The initial deny-by-default allowlists and independent-session requirements are described in [Role contracts](role-contracts.md).
+
 ## Trust boundaries
 
 - Model output is untrusted structured input.

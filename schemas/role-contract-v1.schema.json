@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/YokoTheSlayer/sigillum/schemas/role-contract-v1.schema.json",
+  "title": "Sigillum role contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "role",
+    "capabilities",
+    "requires_independent_session"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "role": {
+      "type": "string",
+      "enum": ["scout", "architect", "implementer", "verifier", "judge"]
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "read_repository",
+          "search_repository",
+          "read_planning_artifacts",
+          "write_context_pack",
+          "read_context_pack",
+          "request_context",
+          "read_contract",
+          "read_approved_task",
+          "read_task_paths",
+          "write_task_paths",
+          "run_approved_commands",
+          "read_diff",
+          "run_required_gates",
+          "write_findings",
+          "read_proofpack",
+          "write_verdict"
+        ]
+      }
+    },
+    "requires_independent_session": {
+      "type": "boolean"
+    }
+  }
+}

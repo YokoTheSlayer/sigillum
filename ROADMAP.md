@@ -111,7 +111,7 @@ There will be one approved contract snapshot, one state tree, one finding schema
 - [ ] Implement `sigillum init`, `sigillum run`, `status`, `resume`, and `cancel`.
 - [ ] Store runs under `.sigillum/runs/<run-id>/`.
 - [ ] Define schemas for roles, hand-offs, events, findings, budgets, and verdicts.
-- [ ] Implement all five role identities with minimal initial capability policies.
+- [x] Implement all five role identities with minimal initial capability policies.
 - [ ] Execute one OpenSpec task through an implementer adapter.
 - [ ] Run a deterministic verifier after implementation.
 - [ ] Produce minimal Markdown and JSON proofpacks.
@@ -236,4 +236,4 @@ Every milestone adds schema compatibility, deterministic state-transition, appro
 
 ## Immediate next step
 
-Begin Milestone 2 with the minimal persisted run state and role-contract schemas. Keep model routing and autonomous implementation deferred until lifecycle transitions, capability boundaries, and resume semantics are deterministic.
+Continue Milestone 2 with the minimal persisted run state and lifecycle transitions. Keep model routing and autonomous implementation deferred until resume semantics and remaining public artifact schemas are deterministic.
