@@ -33,13 +33,13 @@ impl Role {
 
     /// Returns the built-in minimum contract for this role.
     #[must_use]
-    pub const fn contract(self) -> RoleContract {
+    pub const fn contract(self) -> Contract {
         match self {
-            Self::Scout => RoleContract::new(self, SCOUT_CAPABILITIES, false),
-            Self::Architect => RoleContract::new(self, ARCHITECT_CAPABILITIES, false),
-            Self::Implementer => RoleContract::new(self, IMPLEMENTER_CAPABILITIES, false),
-            Self::Verifier => RoleContract::new(self, VERIFIER_CAPABILITIES, true),
-            Self::Judge => RoleContract::new(self, JUDGE_CAPABILITIES, true),
+            Self::Scout => Contract::new(self, SCOUT_CAPABILITIES, false),
+            Self::Architect => Contract::new(self, ARCHITECT_CAPABILITIES, false),
+            Self::Implementer => Contract::new(self, IMPLEMENTER_CAPABILITIES, false),
+            Self::Verifier => Contract::new(self, VERIFIER_CAPABILITIES, true),
+            Self::Judge => Contract::new(self, JUDGE_CAPABILITIES, true),
         }
     }
 }
@@ -108,13 +108,13 @@ impl Capability {
 
 /// Immutable minimum capability policy for one logical role.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct RoleContract {
+pub struct Contract {
     role: Role,
     capabilities: &'static [Capability],
     requires_independent_session: bool,
 }
 
-impl RoleContract {
+impl Contract {
     const fn new(
         role: Role,
         capabilities: &'static [Capability],
