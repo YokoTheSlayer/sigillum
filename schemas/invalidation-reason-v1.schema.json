@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/YokoTheSlayer/sigillum/schemas/invalidation-reason-v1.schema.json",
+  "title": "Sigillum approval invalidation reason v1",
+  "type": "string",
+  "enum": [
+    "contract_changed",
+    "approval_record_corrupt"
+  ]
+}
