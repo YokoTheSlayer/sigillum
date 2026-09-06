@@ -2,7 +2,7 @@
 
 OpenSpec-compatible role runtime for AI coding agents with bounded context, controlled execution, independent review, and verifiable proof.
 
-> Status: foundation work (`v0.0.1`). Sigillum is not ready for production use.
+> Status: OpenSpec contract milestone (`v0.1.0`). Sigillum is not ready for production use.
 
 ## Purpose
 
@@ -24,6 +24,7 @@ The foundation and first contract slice establish:
 
 - a Rust workspace split into core, OpenSpec adapter, and CLI crates;
 - `sigillum contract <change>` for strict OpenSpec validation and a fail-closed, canonical snapshot of its artifact closure;
+- `sigillum approve <change> <fingerprint>` for explicit append-only approval and deterministic change invalidation;
 - explicit architecture and artifact compatibility decisions;
 - formatting, linting, tests, and CI;
 - legal boundaries for OpenSpec integration, Signum-derived work, and clean-room implementation of selected Pactum concepts.
@@ -39,6 +40,7 @@ cargo build --workspace
 cargo test --workspace
 cargo run --bin sigillum -- --version
 cargo run --bin sigillum -- contract <change> --project <path>
+cargo run --bin sigillum -- approve <change> <fingerprint> --project <path>
 ```
 
 ## Security

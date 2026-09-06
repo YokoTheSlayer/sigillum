@@ -3,11 +3,12 @@ members = [
     "crates/sigillum-cli",
     "crates/sigillum-core",
     "crates/sigillum-openspec",
+    "crates/sigillum-store",
 ]
 resolver = "2"
 
 [workspace.package]
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 rust-version = "1.81"
 license = "Apache-2.0"

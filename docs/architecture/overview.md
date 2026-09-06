@@ -60,6 +60,8 @@ OpenSpec `proposal`, `specs`, `design`, and `tasks` files are the editable plann
 
 The initial machine-readable boundary and its fail-closed path checks are described in [OpenSpec adapter](openspec-adapter.md).
 
+Explicit hash-pinned decisions and append-only invalidation behavior are described in [Approval store](approval-store.md).
+
 ## Interface rule
 
 The CLI and Codex plugin translate user interactions to core commands and render core events. They must not own contracts, policy decisions, repair loops, or verdicts.

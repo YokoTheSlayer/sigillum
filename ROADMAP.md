@@ -95,11 +95,11 @@ There will be one approved contract snapshot, one state tree, one finding schema
 - [x] Detect a local OpenSpec project and compatible CLI version.
 - [x] Read `status`, `instructions`, and validation results through the OpenSpec JSON interface.
 - [x] Resolve the required `proposal`, `specs`, `design`, and `tasks` artifact closure without duplicating editable content.
-- [ ] Define versioned schemas for OpenSpec references, contract snapshots, approvals, and invalidation reasons.
+- [x] Define versioned schemas for OpenSpec references, contract snapshots, approvals, and invalidation reasons.
 - [x] Canonicalize artifact content, paths, schema identity, and hashes.
-- [ ] Require explicit hash-pinned approval.
-- [ ] Invalidate approval when any covered artifact or schema input changes.
-- [ ] Add compatibility fixtures for valid, incomplete, changed, and unsupported OpenSpec projects.
+- [x] Require explicit hash-pinned approval.
+- [x] Invalidate approval when any covered artifact or schema input changes.
+- [x] Add compatibility fixtures for valid, incomplete, changed, and unsupported OpenSpec projects.
 - [x] Document the boundary between advisory OpenSpec guidance and enforceable Sigillum policy.
 
 **Exit:** `sigillum contract <change>` produces one auditable snapshot and detects every covered post-approval change.
@@ -236,4 +236,4 @@ Every milestone adds schema compatibility, deterministic state-transition, appro
 
 ## Immediate next step
 
-Build Milestone 1 as a narrow OpenSpec compatibility and contract-snapshot slice. Do not begin model routing or autonomous implementation until artifact resolution, approval hashing, and invalidation are deterministic and covered by fixtures.
+Begin Milestone 2 with the minimal persisted run state and role-contract schemas. Keep model routing and autonomous implementation deferred until lifecycle transitions, capability boundaries, and resume semantics are deterministic.
