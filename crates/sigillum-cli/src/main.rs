@@ -144,9 +144,8 @@ fn run_approve(options: &ApproveOptions) -> ExitCode {
     let client = openspec_client(&options.contract);
     match client.load_contract(&options.contract.project, &options.contract.change) {
         Ok(loaded) => {
-            let result = ApprovalStore::open(loaded.planning_root()).and_then(|store| {
-                store.approve(loaded.snapshot(), &options.expected_fingerprint)
-            });
+            let result = ApprovalStore::open(loaded.planning_root())
+                .and_then(|store| store.approve(loaded.snapshot(), &options.expected_fingerprint));
             match result {
                 Ok(path) => {
                     println!("approved: {}", loaded.snapshot().fingerprint());
@@ -216,9 +215,7 @@ fn parse_adapter_arguments(
     change: &OsString,
     arguments: &[OsString],
 ) -> Result<ContractOptions, &'static str> {
-    let change = change
-        .to_str()
-        .ok_or("change name must be valid UTF-8")?;
+    let change = change.to_str().ok_or("change name must be valid UTF-8")?;
     if change.starts_with('-') {
         return Err("the change name must be the first argument");
     }
@@ -281,14 +278,8 @@ mod tests {
 
     #[test]
     fn approval_requires_exact_lowercase_fingerprint() {
-        let valid = [
-            OsString::from("add-auth"),
-            OsString::from("a".repeat(64)),
-        ];
-        let invalid = [
-            OsString::from("add-auth"),
-            OsString::from("A".repeat(64)),
-        ];
+        let valid = [OsString::from("add-auth"), OsString::from("a".repeat(64))];
+        let invalid = [OsString::from("add-auth"), OsString::from("A".repeat(64))];
 
         assert!(parse_approve_arguments(&valid).is_ok());
         assert!(parse_approve_arguments(&invalid).is_err());
